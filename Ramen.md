@@ -5,9 +5,38 @@ This was a short analysis I did using an old TidyTuesday dataset for
 ramen ratings. It was an enjoyable experience, as I figured out how to
 graph data on maps\! These were the resulting graphs.
 
+``` r
+library(tidyverse)
+library(dplyr)
+library(readr)
+library(ggplot2)
+library(rgeos)
+library(mapproj)
+library(modelr)
+library(knitr)
+library(sjPlot)
+
+ramen <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-06-04/ramen_ratings.csv") %>%
+  mutate(
+    variety = factor(variety),
+    style = factor(style)
+  ) %>% na.omit()
+```
+
 ## Top 25 ramen brands by review number:
 
 It looks like Nissin was the winner here.
+
+``` r
+ramen %>% 
+  group_by(brand) %>% 
+  summarise(reviews = sum(review_number))%>% 
+  arrange(desc(reviews)) %>% 
+  top_n(25) %>% 
+  ggplot(aes(brand, reviews, fill = brand))+
+  geom_col()+
+  theme(axis.text.x = element_text(angle = 270))
+```
 
 ![](Ramen_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
@@ -16,12 +45,48 @@ It looks like Nissin was the winner here.
 Unfortunately, due to missing data I could only visualize the top brands
 for their respective origin countries.
 
+``` r
+world_map <- map_data("world")
+
+x <- ramen %>% 
+  group_by(country, brand) %>% 
+  summarise(reviews = sum(review_number)) %>% 
+  arrange(desc(reviews)) %>% 
+  top_n(1) 
+
+top_brand <- x[,1:2]
+
+plot1 <- full_join(top_brand, world_map, by = c("country" = "region"))
+
+ggplot(plot1, aes(long, lat, group = group))+
+  geom_polygon(aes(fill = brand))+
+  labs(x = "Longitude",
+       y = "Latitude",
+       title = "Top ramen brand in origin country",
+       subtitle = " according to review count")
+```
+
 ![](Ramen_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 ## Top ramen brands by average rating
 
 MyKuali wins this round. I filtered to only include brands with over 100
 reviews to root out brands with lower review counts who had all 5-stars.
+
+``` r
+ramen %>% 
+  group_by(brand) %>% 
+  summarise(average_rating = mean(stars),
+            reviews = sum(review_number))%>% 
+  filter(reviews > 100) %>% 
+  arrange(desc(average_rating))%>% 
+  top_n(25) %>% 
+  ggplot(aes(brand, average_rating, fill = brand))+
+  geom_col()+
+  theme(axis.text.x = element_text(angle = 270))+
+  labs(x = "Brand",
+       y = "Average rating")
+```
 
 ![](Ramen_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
@@ -30,11 +95,52 @@ reviews to root out brands with lower review counts who had all 5-stars.
 There don’t appear to be many differences from the map using brands
 sorted by review count.
 
+``` r
+top_brand_rating <- ramen %>% 
+  group_by(country, brand) %>% 
+  summarise(average_rating = mean(stars),
+            reviews = sum(review_number))%>% 
+  filter(reviews > 100) %>% 
+  arrange(desc(average_rating))%>% 
+  top_n(1)
+
+top_brand_rating <- top_brand_rating[,1:2]
+
+plot2 <- full_join(top_brand_rating, world_map, by = c("country" = "region"))
+
+ggplot(plot2, aes(long, lat, group = group))+
+  geom_polygon(aes(fill = brand))+
+  labs(x = "Longitude",
+       y = "Latitude",
+       title = "Top ramen brand in origin country",
+       subtitle = " according to average rating",
+       caption = "(taking brands with over 5000 reviews)")
+```
+
 ![](Ramen_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ## Top ramen style by country (according to review count)
 
 Finally, I looked at preferred ramen style.
+
+``` r
+top_style <- ramen %>% 
+  group_by(country, style) %>% 
+  summarise(reviews = sum(review_number))%>%
+  arrange(desc(reviews)) %>% 
+  top_n(1)
+
+top_style <- top_style[,1:2]  
+
+plot3 <- full_join(top_style, world_map, by = c("country" = "region"))
+
+ggplot(plot3, aes(long, lat, group = group))+
+  geom_polygon(aes(fill = style))+
+  labs(x = "Longitude",
+       y = "Latitude",
+       title = "Top ramen style in orgin country",
+       subtitle = " according to review count")
+```
 
 ![](Ramen_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
@@ -42,6 +148,37 @@ Finally, I looked at preferred ramen style.
 
 Finally, I ran a couple regressions, which weren’t very accurate, as
 indicated by the low adjusted R-squared values.
+
+``` r
+topramenbrand <- ramen %>% 
+  group_by(brand) %>% 
+  summarise(reviews = sum(review_number)) %>% 
+  arrange(desc(reviews)) %>% 
+  top_n(25) %>% 
+  pull(brand)
+
+topramen <- ramen %>% 
+  filter(brand %in% topramenbrand)
+
+lm <- lm(review_number ~ style + brand, data = topramen )
+
+topramenbrand2 <- ramen %>% 
+  group_by(brand) %>% 
+  summarise(average_rating = mean(stars),
+            reviews = sum(review_number))%>% 
+  filter(reviews > 100) %>% 
+  arrange(desc(average_rating))%>% 
+  top_n(25) %>% 
+  pull(brand)
+
+topramen2 <- ramen %>%
+  filter(brand %in% topramenbrand2) %>% 
+  mutate(brand = factor(brand))
+
+lm2 <- lm(review_number ~ brand, data = topramen2)
+
+tab_model(lm, lm2, p.style = "stars", show.ci = FALSE)
+```
 
 <table style="border-collapse:collapse; border:none;">
 
