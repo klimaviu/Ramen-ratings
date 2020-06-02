@@ -6,16 +6,6 @@ ramen ratings. It was an enjoyable experience, as I figured out how to
 graph data on maps\! These were the resulting graphs.
 
 ``` r
-library(tidyverse)
-library(dplyr)
-library(readr)
-library(ggplot2)
-library(rgeos)
-library(mapproj)
-library(modelr)
-library(knitr)
-library(sjPlot)
-
 ramen <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-06-04/ramen_ratings.csv") %>%
   mutate(
     variety = factor(variety),
@@ -38,7 +28,7 @@ ramen %>%
   theme(axis.text.x = element_text(angle = 270))
 ```
 
-![](Ramen_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+![](Ramen_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 ## Top ramen brand for each country by review count
 
@@ -66,7 +56,7 @@ ggplot(plot1, aes(long, lat, group = group))+
        subtitle = " according to review count")
 ```
 
-![](Ramen_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](Ramen_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ## Top ramen brands by average rating
 
@@ -88,7 +78,7 @@ ramen %>%
        y = "Average rating")
 ```
 
-![](Ramen_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](Ramen_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ## Top ramen brands in their origin countries according to average rating
 
@@ -117,7 +107,7 @@ ggplot(plot2, aes(long, lat, group = group))+
        caption = "(taking brands with over 5000 reviews)")
 ```
 
-![](Ramen_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](Ramen_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ## Top ramen style by country (according to review count)
 
@@ -142,7 +132,7 @@ ggplot(plot3, aes(long, lat, group = group))+
        subtitle = " according to review count")
 ```
 
-![](Ramen_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](Ramen_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ## A couple of linear regressions.
 

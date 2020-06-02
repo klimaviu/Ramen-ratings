@@ -9,7 +9,7 @@ knitr::opts_chunk$set(echo = TRUE, error = FALSE, message = FALSE, warning = FAL
 
 This was a short analysis I did using an old TidyTuesday dataset for ramen ratings. It was an enjoyable experience, as I figured out how to graph data on maps! These were the resulting graphs.
 
-```{r}
+```{r, echo = FALSE}
 library(tidyverse)
 library(dplyr)
 library(readr)
@@ -19,7 +19,9 @@ library(mapproj)
 library(modelr)
 library(knitr)
 library(sjPlot)
+```
 
+```{r}
 ramen <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-06-04/ramen_ratings.csv") %>%
   mutate(
     variety = factor(variety),
