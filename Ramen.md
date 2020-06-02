@@ -40,7 +40,7 @@ Finally, I looked at preferred ramen style.
 
 ## A couple of linear regressions.
 
-Finally, I ran a couple regressions, which weren’t were accurate, as
+Finally, I ran a couple regressions, which weren’t very accurate, as
 indicated by the low adjusted R-squared values.
 
 <table style="border-collapse:collapse; border:none;">
