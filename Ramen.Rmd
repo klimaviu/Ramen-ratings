@@ -142,7 +142,7 @@ ggplot(plot3, aes(long, lat, group = group))+
 
 ## A couple of linear regressions.
 
-Finally, I ran a couple regressions, which weren't were accurate, as indicated by the low adjusted R-squared values.
+Finally, I ran a couple regressions, which weren't very accurate, as indicated by the low adjusted R-squared values.
 
 ```{r}
 topramenbrand <- ramen %>% 
